@@ -32,6 +32,6 @@ services:
         - PHP_FPM_PORT=9000
         volumes:
         - /etc/localtime:/etc/localtime:ro
-        - /data/www:/data/wwwroot:rw
+        - /data/wwwroot:/data/wwwroot:rw
         - /data/wwwlogs/:/data/wwwlogs:rw
         - /usr/local/nginx/conf:/usr/local/nginx/conf:rw
