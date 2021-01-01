@@ -22,7 +22,7 @@ RUN set -x && \
         apk --update --no-cache upgrade && \
 	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS ca-certificates ${MEMCACHE_DEPS} \
 	curl tar xz openssl gnupg argon2-dev coreutils curl-dev libpng-dev php7-memcache \
-	libedit-dev libsodium-dev libxml2-dev linux-headers oniguruma-dev openssl-dev sqlite-dev && \
+	libedit-dev libxslt-dev libzip libzip-dev libsodium-dev libxml2-dev linux-headers oniguruma-dev openssl-dev sqlite-dev && \
 	export CFLAGS="$PHP_CFLAGS" \
 	CPPFLAGS="$PHP_CPPFLAGS" \
 	LDFLAGS="$PHP_LDFLAGS" && \
@@ -44,6 +44,7 @@ RUN set -x && \
           --with-pic \
           --enable-ftp \
           --enable-mbstring \
+	  --with-mysqli=mysqlnd \
           --enable-mysqlnd \
           --with-password-argon2 \
           --with-sodium=shared \
@@ -52,29 +53,26 @@ RUN set -x && \
           --with-curl \
           --with-libedit \
           --with-openssl \
+	  --enable-bcmath \
+	  --enable-sysvsem \
+	  --with-xmlrpc \
+	  --with-zip \
+	  --with-xsl \
           --with-zlib \
           --enable-opcache \
           --enable-sockets \
           --enable-soap \
           --enable-shmop \
           --enable-pcntl \
-          --with-mhash \
-	  --enable-bcmath \
           --enable-intl \
           --disable-ipv6 \
-	  --enable-cli \
-	  --enable-shared \
           --enable-gd \
           --with-gettext \
           --enable-exif \
           --with-imap \
-	  --disable-debug \
-	  --with-layout=GNU \
-	  --disable-debug \
           --with-imap-ssl \
           -with-openssl \
           --with-pear \
-	  --enable-memcache \
           $(test "$gnuArch" = 's390x-linux-musl' && echo '--without-pcre-jit') \
           ${PHP_EXTRA_CONFIGURE_ARGS:-} && \
 	make -j "$(nproc)" && \
@@ -82,6 +80,7 @@ RUN set -x && \
 	make install && \
 	[ ! -e "${INSTALL_DIR}/etc/php.d" ] && mkdir -p ${INSTALL_DIR}/etc/php.d && \
 	/bin/cp php.ini-production ${INSTALL_DIR}/etc/php.ini && \
+	apk add --no-cache php7-memcache libmemcached-dev imagemagick-dev && \
 	find /usr/local/bin /usr/local/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true && \
 	make clean && \
 	cd / && \
@@ -94,6 +93,7 @@ RUN set -x && \
 	${INSTALL_DIR}/bin/pecl update-channels && \
         ${INSTALL_DIR}/bin/pecl install http://pecl.php.net/get/memcached-3.1.3.tgz && \
         ${INSTALL_DIR}/bin/pecl install https://pecl.php.net/get/redis-5.0.2.tgz && \
+        ${INSTALL_DIR}/bin/pecl install https://pecl.php.net/get/imagick-3.4.4.tgz && \
         curl -Lk "http://pecl.php.net/get/swoole-${SWOOLE_VERSION}.tgz" | tar xz -C /tmp && \
         cd /tmp/swoole-${SWOOLE_VERSION} && \
 	${INSTALL_DIR}/bin/phpize && \
@@ -104,9 +104,9 @@ RUN set -x && \
 	apk del .build-deps && \
 	rm -rf /tmp/pear ~/.pearrc /var/cache/apk/* /tmp/*
 
-ENV PATH=${INSTALL_DIR}/bin:$PATH \
-    PATH=${INSTALL_DIR}/sbin:$PATH \
-    TERM=linux
+ENV PATH=${INSTALL_DIR}/bin:$PATH
+ENV PATH=${INSTALL_DIR}/sbin:$PATH \
+        TERM=linux
 
 COPY entrypoint.sh /entrypoint.sh
 ADD php-fpm.conf ${INSTALL_DIR}/etc/php-fpm.conf
