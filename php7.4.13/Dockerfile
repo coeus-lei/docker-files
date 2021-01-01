@@ -59,6 +59,7 @@ RUN set -x && \
           --enable-shmop \
           --enable-pcntl \
           --with-mhash \
+	  --enable-bcmath \
           --enable-intl \
           --disable-ipv6 \
 	  --enable-cli \
