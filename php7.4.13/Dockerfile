@@ -61,13 +61,19 @@ RUN set -x && \
           --with-mhash \
           --enable-intl \
           --disable-ipv6 \
+	  --enable-cli \
+	  --enable-shared \
           --enable-gd \
           --with-gettext \
           --enable-exif \
           --with-imap \
+	  --disable-debug \
+	  --with-layout=GNU \
+	  --disable-debug \
           --with-imap-ssl \
           -with-openssl \
           --with-pear \
+	  --enable-memcache \
           $(test "$gnuArch" = 's390x-linux-musl' && echo '--without-pcre-jit') \
           ${PHP_EXTRA_CONFIGURE_ARGS:-} && \
 	make -j "$(nproc)" && \
