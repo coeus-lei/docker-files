@@ -81,6 +81,7 @@ RUN set -x && \
 	[ ! -e "${INSTALL_DIR}/etc/php.d" ] && mkdir -p ${INSTALL_DIR}/etc/php.d && \
 	/bin/cp php.ini-production ${INSTALL_DIR}/etc/php.ini && \
 	apk add --no-cache php7-memcache libmemcached-dev imagemagick-dev && \
+	#mv /usr/lib/php7/modules/memcache.so ${INSTALL_DIR}/lib/php/extensions/no-debug-non-zts-20190902/memcache.so && \
 	find /usr/local/bin /usr/local/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true && \
 	make clean && \
 	cd / && \
@@ -91,6 +92,8 @@ RUN set -x && \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)" && \
 	${INSTALL_DIR}/bin/pecl update-channels && \
+	${INSTALL_DIR}/bin/pecl install http://pecl.php.net/get/memcache-4.0.5.2.tgz && \
+	${INSTALL_DIR}/bin/pecl install http://pecl.php.net/get/mongodb-1.9.0.tgz && \
         ${INSTALL_DIR}/bin/pecl install http://pecl.php.net/get/memcached-3.1.3.tgz && \
         ${INSTALL_DIR}/bin/pecl install https://pecl.php.net/get/redis-5.0.2.tgz && \
         ${INSTALL_DIR}/bin/pecl install https://pecl.php.net/get/imagick-3.4.4.tgz && \
