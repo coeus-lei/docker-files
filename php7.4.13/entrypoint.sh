@@ -1,8 +1,16 @@
 #!/bin/sh
+#########################################################################
+# File Name: entrypoint.sh
+# Author: Simon
+# Email: 
+# Version:
+# Created Time: 2021年01月01日 星期六 10时56分04秒
+#########################################################################
 
 set -e
 
-[ "${1:0:1}" = '-' ] && set -- php-fpm "$@"
+#[ "${1:0:1}" = '-' ] && set -- php-fpm "$@"
+[ "${1#-}" != "$1" ] && set -- php-fpm "$@"
 
 mem_sum() {
 	Mem=`free -m | awk '/Mem:/{print $2}'`
@@ -30,8 +38,8 @@ chown -R www.www /data/wwwroot
 [ -z "${MEM_LIMIT}" ] && mem_sum
 [ "$EXPOSE_PHP" != "On" ] && EXPOSE_PHP=Off
 PHP_INI_CONF=${PHP_INI_CONF:-enable}
-
-if [[ "$MEMCACHE" =~ ^[eE][nN][aA][bB][lL][eE]$ ]]; then
+echo "$MEMCACHE" > /log.log
+if [[ "$MEMCACHE" == "yes" ]]; then
 	echo 'extension=memcache.so' > ${INSTALL_DIR}/etc/php.d/ext-memcache.ini
 	cat > ${INSTALL_DIR}/etc/php.d/ext-memcached.ini <<-EOF
 		extension=memcached.so
@@ -39,17 +47,22 @@ if [[ "$MEMCACHE" =~ ^[eE][nN][aA][bB][lL][eE]$ ]]; then
 	EOF
 fi
 
-if [[ "$REDIS" =~ ^[eE][nN][aA][bB][lL][eE]$ ]]; then
+if [[ "$REDIS" == "yes" ]]; then
 	cat > ${INSTALL_DIR}/etc/php.d/ext-redis.ini <<-EOF
 		[redis]
 		extension=redis.so
 	EOF
 fi
 
-if [[ "${SWOOLE}" =~ ^[eE][nN][aA][bB][lL][eE]$ ]]; then
+if [[ "${SWOOLE}" == "yes" ]]; then
 	echo 'extension=swoole.so' > ${INSTALL_DIR}/etc/php.d/ext-swoole.ini
 fi
-
+if [[ "${IMAGICK}" == "yes" ]]; then
+        echo 'extension=imagick.so' >${INSTALL_DIR}/etc/php.d/ext-imagick.ini
+fi
+if [[ "${MONGODB}" == "yes" ]]; then
+        echo 'extension=mongodb.so' >${INSTALL_DIR}/etc/php.d/ext-mongodb.ini
+fi
 OPCACHE=${OPCACHE:-enable}
 
 XDEBUG_DEFAULT_CONF=${XDEBUG_DEFAULT_CONF:-enable}
