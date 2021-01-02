@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  redis:
+    container_name: redis
+    command: ["redis-server", "/etc/redis.conf"]
+    restart: always
+    privileged: true
+    image: simon-2/redis:v6.0.9
+    ports:
+    - "6379:6379"
+    environment:
+    - TERM=linux
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /data/redis:/data/redis:Z
