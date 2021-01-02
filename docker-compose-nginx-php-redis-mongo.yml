@@ -1,0 +1,68 @@
+version: '3'
+services:
+    redis:
+        container_name: redis_server
+        restart: always
+        command: ["redis-server", "/etc/redis.conf"]
+        privileged: true
+        image: coeus0301/redis:6.0.9
+        ports:
+        - "6379:6379"
+        environment:
+        - TERM=linux
+        volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /etc/redis.conf:/etc/redis.conf:Z
+        - /data/redis:/data/redis:Z
+    mongo:
+        container_name: mongo_server
+        restart: always
+        privileged: true
+        image: coeus0301/mongo:4.4.2
+        ports:
+        - "27017:27017"
+        environment:
+        - MONGO_INITDB_ROOT_USERNAME=admin
+        - MONGO_INITDB_ROOT_PASSWORD=star-devops
+        volumes:
+        - /data/db:/data/db:Z
+        - /data/configdb:/data/configdb:Z
+    php:
+        container_name: php_server
+        restart: always
+        privileged: true
+        image: coeus0301/php:7.4.13
+        links:
+        - redis:resid_server
+        - mongo:mongo_server
+        environment:
+        - REDIS=yes
+        - MEMCACHE=yes
+        - SWOOLE=yes
+        - IMAGICK=yes
+        - MONGODB=yes
+        volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /data/wwwroot:/data/wwwroot:rw
+    nginx:
+        container_name: nginx_server
+        restart: always
+        #privileged: true
+        image: coeus0301/nginx:1.18.0
+        ports:
+        - "80:80"
+        - "443:443"
+        links:
+        - php:php_server
+        - redis:resid_server
+        volumes_from:
+        - php
+        environment:
+        - PHP_FPM=Yes
+        - PHP_FPM_SERVER=php_server
+        - PHP_FPM_PORT=9000
+        volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /data/wwwroot:/data/wwwroot:rw
+        - /data/wwwlogs:/data/wwwlogs:rw
+        - /data/conf/nginx/vhost:/usr/local/nginx/conf/vhost:rw
