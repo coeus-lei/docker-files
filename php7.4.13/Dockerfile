@@ -64,6 +64,7 @@ RUN set -x && \
           --enable-soap \
           --enable-shmop \
           --enable-pcntl \
+	  --with-pdo-mysql \
           --enable-intl \
           --disable-ipv6 \
           --enable-gd \
