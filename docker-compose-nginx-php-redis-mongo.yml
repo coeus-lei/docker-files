@@ -65,4 +65,4 @@ services:
         - /etc/localtime:/etc/localtime:ro
         - /data/wwwroot:/data/wwwroot:rw
         - /data/wwwlogs:/data/wwwlogs:rw
-        - /data/conf/nginx/vhost:/usr/local/nginx/conf/vhost:rw
+        - /data/conf/nginx:/usr/local/nginx/conf:rw
