@@ -3,6 +3,9 @@ services:
     redis:
         container_name: redis_server
         restart: always
+        networks:
+           phpnetwork:
+              ipv4_address: 172.21.0.2
         command: ["redis-server", "/etc/redis.conf"]
         privileged: true
         image: coeus0301/redis:6.0.9
@@ -17,6 +20,9 @@ services:
     mongo:
         container_name: mongo_server
         restart: always
+        networks:
+           phpnetwork:
+              ipv4_address: 172.21.0.3
         privileged: true
         image: coeus0301/mongo:4.4.2
         ports:
@@ -30,6 +36,9 @@ services:
     php:
         container_name: php_server
         restart: always
+        networks:
+           phpnetwork:
+              ipv4_address: 172.21.0.4
         privileged: true
         image: coeus0301/php:7.4.13
         links:
@@ -44,9 +53,14 @@ services:
         volumes:
         - /etc/localtime:/etc/localtime:ro
         - /data/wwwroot:/data/wwwroot:rw
+        - /data/phplogs:/usr/local/php/var/log:rw
+       
     nginx:
         container_name: nginx_server
         restart: always
+        networks:
+           phpnetwork:
+              ipv4_address: 172.21.0.5
         #privileged: true
         image: coeus0301/nginx:1.18.0
         ports:
@@ -66,3 +80,9 @@ services:
         - /data/wwwroot:/data/wwwroot:rw
         - /data/wwwlogs:/data/wwwlogs:rw
         - /data/conf/nginx:/usr/local/nginx/conf:rw
+networks:
+   phpnetwork:
+      ipam:
+         config:
+         - subnet: 172.21.0.0/16
+           gateway: 172.21.0.1
