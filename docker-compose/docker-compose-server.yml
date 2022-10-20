@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  gateway:
+    image: adoptopenjdk/openjdk8:latest
+    volumes:
+      - ".:/app"
+      - "/data/gateway:/app/logs"
+    ports:
+      - 18000:18000
+    env_file:
+      - .env
+    logging:
+      options:
+        max-size: "2m"
+    working_dir: /app/gateway
+    command: java  -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Djava.util.Arrays.useLegacyMergeSort=true -server -Xmx3g -Xms3g -Xmn1g -Xss1m -XX:MaxDirectMemorySize=512m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:LargePageSizeInBytes=8m -XX:+UseFastAccessorMethods -XX:CMSInitiatingOccupancyFraction=80 -XX:GCTimeRatio=19 -jar target/gateway-0.0.1.jar
+
+  register:
+    image: adoptopenjdk/openjdk8:latest
+    volumes:
+      - ".:/app"
+      - "/data/register:/app/register/logs"
+    ports:
+      - 8010:8010
+    env_file:
+      - .env
+    logging:
+      options:
+        max-size: "2m"
+    working_dir: /app/register
+    command: java -jar target/register-0.0.1.jar
